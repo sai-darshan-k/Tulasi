@@ -191,13 +191,14 @@ body {
 /* Mood card */
 .mcard { background: white; border-radius: var(--card-r); overflow: hidden; box-shadow: 0 6px 32px rgba(26,74,46,.1); }
 
-/* ── VIDEO MEDIA AREA — tall, near-square ── */
+/* ── VIDEO MEDIA AREA — square container ── */
 .mmedia {
   position: relative;
   width: 100%;
-  aspect-ratio: 3/4;   /* portrait/tall — fits full video nicely */
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   cursor: pointer;
+  background: #e8f5e9;
 }
 
 .mmedia-bg {
@@ -222,6 +223,7 @@ body {
   display: none;
 }
 .mmedia.has-video video { display: block; }
+.mmedia.has-video .mmedia-bg { display: none; }
 
 /* ── NO overlay text / badge / quote on video ── */
 /* media-badge and mquote are completely removed from markup */
