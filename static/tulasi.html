@@ -156,7 +156,7 @@ body {
 /* ══════════════════════════════════
    MOOD DIARY CAROUSEL
 ══════════════════════════════════ */
-.mood-sec { padding: 36px 0 48px; overflow: hidden; }
+.mood-sec { padding: 36px 0 0; overflow: hidden; }
 .mood-header { padding: 0 20px 6px; }
 .mood-intro { font-size: 13px; color: var(--ink2); line-height: 1.6; padding: 4px 20px 0; }
 
@@ -191,11 +191,11 @@ body {
 /* Mood card */
 .mcard { background: white; border-radius: var(--card-r); overflow: hidden; box-shadow: 0 6px 32px rgba(26,74,46,.1); }
 
-/* ── VIDEO MEDIA AREA — increased height, no overlaid text ── */
+/* ── VIDEO MEDIA AREA — tall, near-square ── */
 .mmedia {
   position: relative;
   width: 100%;
-  aspect-ratio: 4/3;   /* taller than before (was 16/10) */
+  aspect-ratio: 3/4;   /* portrait/tall — fits full video nicely */
   overflow: hidden;
   cursor: pointer;
 }
@@ -229,20 +229,22 @@ body {
 /* Big play button: HIDDEN at all times (autoplay, no button shown) */
 .big-play { display: none !important; }
 
-/* Bottom controls bar — only progress + pause/mute, no play icon visible by default */
+/* Bottom controls bar — always visible mute; pause/progress appear on tap */
 .vcontrols {
   position: absolute; bottom: 0; left: 0; right: 0; z-index: 9;
   background: linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 100%);
   padding: 28px 12px 10px;
   display: flex; align-items: center; gap: 10px;
-  opacity: 0; transition: opacity .3s ease; pointer-events: none;
+  opacity: 1; pointer-events: all;   /* always visible */
+  transition: opacity .3s ease;
 }
-/* Show controls on tap (show-ctrl) or when paused after first play */
-.mmedia.show-ctrl .vcontrols,
-.mmedia.paused-once .vcontrols { opacity: 1; pointer-events: all; }
-/* Auto-hide controls when playing (unless tapped) */
-.mmedia.playing .vcontrols { opacity: 0; pointer-events: none; }
-.mmedia.playing.show-ctrl .vcontrols { opacity: 1; pointer-events: all; }
+/* Hide pause btn + progress when not tapped/paused — keep mute always */
+.mmedia:not(.show-ctrl):not(.paused-once) .vcbtn.pause-btn,
+.mmedia:not(.show-ctrl):not(.paused-once) .vprogress-wrap { opacity: 0; pointer-events: none; }
+.mmedia.show-ctrl .vcbtn.pause-btn,
+.mmedia.show-ctrl .vprogress-wrap,
+.mmedia.paused-once .vcbtn.pause-btn,
+.mmedia.paused-once .vprogress-wrap { opacity: 1; pointer-events: all; }
 
 .vcbtn {
   width: 34px; height: 34px; border-radius: 50%;
@@ -271,7 +273,7 @@ body {
 }
 
 /* Card body */
-.mcard-body { padding: 18px 18px 22px; }
+.mcard-body { padding: 18px 18px 14px; }
 .mcard-title {
   font-family: 'Playfair Display', serif; font-size: 18px; color: var(--ink);
   margin-bottom: 5px; display: flex; align-items: center; gap: 8px;
@@ -1011,7 +1013,7 @@ function buildCarousel() {
           </div>
           <video id="v-${i}" playsinline muted preload="metadata"></video>
           <div class="vcontrols" id="vc-${i}">
-            <button class="vcbtn" id="pcbtn-${i}" onclick="togglePause(event,${i})" title="Play/Pause">
+            <button class="vcbtn pause-btn" id="pcbtn-${i}" onclick="togglePause(event,${i})" title="Play/Pause">
               ${svg('i-pause','14')}
             </button>
             <div class="vprogress-wrap" onclick="seekV(event,${i})">
@@ -1154,6 +1156,9 @@ let tx = 0, ty = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
   buildCarousel();
+
+  /* Autoplay first slide immediately */
+  setTimeout(() => autoPlay(0), 300);
 
   const o = document.getElementById('carouselOuter');
   o.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, {passive:true});
